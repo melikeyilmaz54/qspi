@@ -49,11 +49,11 @@ module sim_top();
 
     wire            spi_if_sdo_en;
     wire            spi_if_sdo_o;
-    wire             spi_if_sdo_i;
+    wire            spi_if_sdo_i;
 
     wire            spi_if_sdi_en;
     wire            spi_if_sdi_o;
-    wire             spi_if_sdi_i;
+    wire            spi_if_sdi_i;
 
     spi_axi_if #(
         .DW(DW),
@@ -127,14 +127,11 @@ module sim_top();
         spi_if_awlock = 0;
         spi_if_awcache = 0;
         spi_if_awvalid = 0;
-
-        spi_if_wdata = 128'h00000000000000000000000001000000;
-        spi_if_wstrb = 16'd8;
+        spi_if_wdata = 128'd0;
+        spi_if_wstrb = 16'd0;
         spi_if_wlast = 1;
         spi_if_wvalid = 0;
-
         spi_if_bready = 1;
-
         spi_if_arid = 8'h55;
         spi_if_arlen = 0;
         spi_if_arsize = 0;
@@ -142,23 +139,25 @@ module sim_top();
         spi_if_arvalid = 0;
         spi_if_rready = 0;
 
-
         #100;
         aresetn = 1;
         #100;
 
+        // Komut: READ (0x03), adres: 0x000000
         spi_if_awaddr = 32'h00000000;
+        spi_if_wdata  = 128'h0000000000000000000000000000000000000000000000000000000000030000;
+        spi_if_wstrb  = 16'h0003; // 0x03 + 0x0000 adres
         spi_if_awvalid = 1;
-        spi_if_wvalid = 1;
-        #80;
+        spi_if_wvalid  = 1;
+        #40;
         spi_if_awvalid = 0;
-        spi_if_wvalid = 0;
+        spi_if_wvalid  = 0;
 
         #400;
-        spi_if_araddr = 32'h00000000;
+        // QSPI'dan veri oku
+        spi_if_araddr  = 32'h00000000;
         spi_if_arvalid = 1;
-        spi_if_rready = 1;
-
+        spi_if_rready  = 1;
         wait(spi_if_rvalid);
         #40;
         $display("QSPI FLASH'tan OKUNAN VERI = 0x%h", spi_if_rdata);
